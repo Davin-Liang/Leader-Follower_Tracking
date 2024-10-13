@@ -17,12 +17,12 @@ from launch.actions.append_environment_variable import AppendEnvironmentVariable
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('pb_rm_simulation')
+    bringup_dir = get_package_share_directory('lft_simulation')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
     # Specify xacro path
-    leader_urdf_dir = get_package_share_path('pb_rm_simulation') / 'urdf' / 'simulation_leader_waking_robot.xacro'
-    slave_urdf_dir = get_package_share_path('pb_rm_simulation') / 'urdf' / 'simulation_slave_waking_robot.xacro'
+    leader_urdf_dir = get_package_share_path('lft_simulation') / 'urdf' / 'simulation_leader_waking_robot.xacro'
+    slave_urdf_dir = get_package_share_path('lft_simulation') / 'urdf' / 'simulation_slave_waking_robot.xacro'
 
     # Create the launch configuration variables
     use_sim_time = LaunchConfiguration('use_sim_time')
