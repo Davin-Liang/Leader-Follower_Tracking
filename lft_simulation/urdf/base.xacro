@@ -1,11 +1,6 @@
 <?xml version="1.0"?>
 
 <robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:include filename="$(find lft_simulation)/urdf/common_inertia.xacro" />
-    <xacro:include filename="$(find lft_simulation)/urdf/plugins/gazebo_sensor_plugin.xacro" />
-
-    <xacro:gazebo_sensor_plugin />
-
     <xacro:property name="length_wheel" value="0.05" />
     <xacro:property name="radius_wheel" value="0.06" />
     <xacro:property name="PI" value="3.1415926"/>
@@ -254,62 +249,5 @@
     <xacro:mid360 name="livox_frame" parent="base_link" topic="/livox/lidar">
         <origin xyz="0 0.0 0.175" rpy="0 0 0"/>
     </xacro:mid360> -->
-
-    <!-- Lidar -->
-    <link name="laser_link">
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <geometry>
-                <cylinder length="0.02" radius="0.02" />
-            </geometry>
-            <material name="black">
-                <color rgba="0.0 0.0 0.0 0.8" />
-            </material>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <geometry>
-                <cylinder length="0.02" radius="0.02" />
-            </geometry>
-            <material name="black">
-                <color rgba="0.0 0.0 0.0 0.8" />
-            </material>
-        </collision>
-        <xacro:cylinder_inertia m="0.03" r="0.02" h="0.02" />
-
-        <!-- <sensor name='gpu_lidar' type='gpu_lidar'>
-            <topic>lidar</topic>
-            <update_rate>10</update_rate>
-            <lidar>
-                <scan>
-                    <horizontal>
-                        <samples>640</samples>
-                        <resolution>1</resolution>
-                        <min_angle>-1.396263</min_angle>
-                        <max_angle>1.396263</max_angle>
-                    </horizontal>
-                    <vertical>
-                        <samples>16</samples>
-                        <resolution>1</resolution>
-                        <min_angle>-0.261799</min_angle>
-                        <max_angle>0.261799</max_angle>
-                    </vertical>
-                </scan>
-                <range>
-                    <min>0.08</min>
-                    <max>10.0</max>
-                    <resolution>0.01</resolution>
-                </range>
-            </lidar>
-            <alwaysOn>1</alwaysOn>
-            <visualize>true</visualize>
-        </sensor> -->
-    </link>
-
-    <joint name="laser_joint" type="fixed">
-        <parent link="base_link" />
-        <child link="laser_link" />
-        <origin xyz="0 0 0.175" />
-    </joint>
 
 </robot>
