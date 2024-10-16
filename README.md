@@ -3,8 +3,13 @@
 ```
 mkdir -p lft_ws/src
 git clone git@github.com:Davin-Liang/Leader-Follower_Tracking.git
+cd Follower_Tracking
+git fetch origin
+git branch -a
+git checkout dev_li
+git switch dev_li
 cd ..
-colcon build
+colcon build --packages-select lft_simulation lft_control
 ```
 2. Start simulation environment.
 ```
