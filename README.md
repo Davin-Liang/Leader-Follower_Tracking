@@ -9,6 +9,7 @@ git branch -a
 git checkout dev_li
 git switch dev_li
 cd ..
+cd ..
 colcon build --packages-select lft_simulation lft_control
 ```
 2. Start simulation environment.
