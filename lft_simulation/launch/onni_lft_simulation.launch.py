@@ -67,6 +67,13 @@ def generate_launch_description():
         output='screen'
     )
 
+    leader_tf2 = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_transform_publisher_leader',
+            arguments=['0', '0', '0', '0', '0', '0', '/map', '/leader/odom']
+        )
+
     slave_robot_joint_state_publisher = Node(
         package='joint_state_publisher',
         executable='joint_state_publisher',
@@ -94,6 +101,13 @@ def generate_launch_description():
         remappings=[('/robot_description', '/robot2_description')],
         output='screen'
     )
+
+    slave_tf2 = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_transform_publisher_slave',
+            arguments=['0', '0', '0', '0', '0', '0', '/map', '/slave/odom']
+        )
 
     def create_gazebo_launch_group():
         # 设置 robot1 和 robot2 的初始位置和方向
@@ -160,8 +174,10 @@ def generate_launch_description():
     ld.add_action(gazebo_client_launch)
     ld.add_action(leader_robot_joint_state_publisher)
     ld.add_action(leader_robot_state_publisher)
+    ld.add_action(leader_tf2)
     ld.add_action(slave_robot_joint_state_publisher)
     ld.add_action(slave_robot_state_publisher)
+    ld.add_action(slave_tf2)
 
     ld.add_action(bringup_world_cmd_group) # type: ignore
 

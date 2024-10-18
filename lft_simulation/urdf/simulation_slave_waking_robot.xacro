@@ -13,6 +13,14 @@
         </inertial>
     </xacro:macro>
 
+    <link name="${type}_base_footprint" />
+
+    <joint name="${type}_base_joint" type="fixed">
+        <parent link="${type}_base_footprint" />
+        <child link="${type}_base_link" />
+        <origin xyz="0.0 0.0 0.0919" rpy="0 0 0" />
+    </joint>
+
     <link name="${type}_base_link">
         <visual>
             <geometry>
@@ -205,7 +213,10 @@
             <publish_rate>100</publish_rate>
 
             <publish_odom>true</publish_odom>
-            <publish_odom_tf>false</publish_odom_tf>
+            <publish_odom_tf>true</publish_odom_tf>
+
+            <odometry_frame>/${type}/odom</odometry_frame>
+            <robot_base_frame>${type}_base_footprint</robot_base_frame>
 
             <leftFrontJoint>${type}_base_to_wheel1</leftFrontJoint>
             <rightFrontJoint>${type}_base_to_wheel3</rightFrontJoint>
