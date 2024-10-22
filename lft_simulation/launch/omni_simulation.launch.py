@@ -18,7 +18,9 @@ from launch.actions.append_environment_variable import AppendEnvironmentVariable
 def generate_launch_description():
     # Get the launch directory
     bringup_dir = get_package_share_directory('lft_simulation')
+    urdf_tutorial_path = get_package_share_directory('lft_simulation')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
+    default_world_path = urdf_tutorial_path + '/world/custom_room.world'
 
     # Specify xacro path
     urdf_dir_3d = get_package_share_path('lft_simulation') / 'urdf' / 'simulation_3d_waking_robot.xacro'
@@ -187,7 +189,8 @@ def generate_launch_description():
                 # 启动 Gazebo 并加载空白世界
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')),
-                    launch_arguments={'world': 'empty.world'}.items(),
+                    launch_arguments={'world': os.path.join(bringup_dir, 'world', default_world_path)}.items(),
+                    # launch_arguments={'world': 'empty.world'}.items(),
                 )
             ]
         )

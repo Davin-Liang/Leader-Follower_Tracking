@@ -17,6 +17,15 @@
         </inertial>
     </xacro:macro>
 
+    <link name="base_footprint" />
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint" />
+        <child link="base_link" />
+        <origin xyz="0.0 0.0 0.0919" rpy="0 0 0" />
+    </joint>
+
+
     <link name="base_link">
         <visual>
             <geometry>
@@ -208,8 +217,8 @@
             <update_rate>100</update_rate>
             <publish_rate>100</publish_rate>
 
-            <publish_odom>false</publish_odom>
-            <publish_odom_tf>false</publish_odom_tf>
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>true</publish_odom_tf>
 
             <leftFrontJoint>base_to_wheel1</leftFrontJoint>
             <rightFrontJoint>base_to_wheel3</rightFrontJoint>
