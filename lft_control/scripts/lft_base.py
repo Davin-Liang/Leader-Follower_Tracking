@@ -31,8 +31,8 @@ class Lft_Onni_Robots(Node):
         self.Lpc = Lpc_Controller(m_p=4, radius=1, tol=0.1, m=10.2)
 
         # Variables in Paper. TODO
-        self.x1       = np.array([0.0, 0.0, 0.0, 0.0]) # state variable of leader robot
-        self.x2       = np.array([2.0, 0.0, 0.0, 0.0]) # state variable of slave robot
+        self.x1       = np.array([10.0, 1.0, 0.0, 0.0]) # state variable of leader robot
+        self.x2       = np.array([1.0, 1.0, 0.0, 0.0]) # state variable of slave robot
 
         self.Lpc.controller_initial_(x1=self.x1, x2=self.x2)
 

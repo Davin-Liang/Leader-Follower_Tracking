@@ -7,7 +7,7 @@ class Lpc_Controller():
         self.A = np.block([[np.zeros((2, 2)), np.eye(2)], [np.zeros((2, 2)), np.zeros((2, 2))]])
         self.B = np.block([[np.zeros((2, 2))], [np.eye(2) * (1 / self.m)]])
         self.m_p    = 4 # 安全点的个数
-        self.radius = 1 # 安全区的半径
+        self.radius = 5 # 安全区的半径
         self.tol    = 0.1
         self.dl     = [] # 4 个安全的坐标
 
@@ -31,7 +31,11 @@ class Lpc_Controller():
         self.e = x2 - x1 - self.d
 
         a = max(-self.m * (self.e[2]) / self.e[0], 1)
-        b = max(-self.m * (self.e[3]) / self.e[1], 1)
+        if e[1] != 0:
+            b = max(-m * (e[3]) / e[1], 1)
+        else:
+            b = 1
+        # b = max(-self.m * (self.e[3]) / self.e[1], 1)
 
         lambda_matrix = np.diag([a, b])
         k2 = -2 * lambda_matrix
