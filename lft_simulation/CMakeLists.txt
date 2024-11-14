@@ -56,5 +56,5 @@ ament_auto_package(
   urdf
   # meshes
   world
-  rviz
+  # rviz
 )

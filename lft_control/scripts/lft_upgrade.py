@@ -9,7 +9,8 @@ from rclpy.node import Node
 from threading import Thread
 import tf_transformations
 
-from lpc import Lpc_Controller
+from homogeneous_controller import Lpc_Controller
+import time
 
 class Lft_Onni_Robots(Node):
     def __init__(self, name):
@@ -40,17 +41,19 @@ class Lft_Onni_Robots(Node):
         # -----------------------------------------Focus above------------------------------------------------
         # ----------------------------------------------------------------------------------------------------
 
-        self.work_timer = self.create_timer(0.002, self.timer_work_)
+        self.work_timer = self.create_timer(0.01, self.timer_work_) #每隔 0.01 秒调用一次 self.timer_work_ 方法
 
         self.spin_thread = Thread(target=self.spin_task_)
         self.spin_thread.start()
 
 
     def turn_output_into_cmd_vel_(self, output):
+
+        self.get_logger().info(f"Output: {output}")
     
         self.slave_move_cmd_.linear.x = float(output[0])
         self.slave_move_cmd_.linear.y = float(output[1])
-        self.slave_move_cmd_.angular.z = (self.leader_yaw - self.slave_yaw) * 8.0
+        self.slave_move_cmd_.angular.z = (self.leader_yaw - self.slave_yaw) * 4.0
 
         self.slave_robot_cmd_vel_pub_.publish(self.slave_move_cmd_)
 
@@ -71,8 +74,6 @@ class Lft_Onni_Robots(Node):
         euler = tf_transformations.euler_from_quaternion(quaternion)
         self.leader_yaw = euler[2]
         # print("leader_yaw = ", euler[2])
-
-
 
     def slave_robot_odom_callback_(self, msg):
         self.x2[0] = msg.pose.pose.position.x
@@ -103,13 +104,25 @@ class Lft_Onni_Robots(Node):
 
         # Use controller there!!!!!!TODO
         # self.Lpc.controller_initial_(self.x1, self.x2)
+
+        self.get_logger().info(f"x1: {self.x1}")
+        self.get_logger().info(f"x2: {self.x2}")
+
         output = self.Lpc.lpc_calculate(x1=self.x1, x2=self.x2)
-        self.Lpc.calculate_distance(x1=self.x1, x2=self.x2)
+        # self.Lpc.calculate_distance(x1=self.x1, x2=self.x2)
+        self.get_logger().info(f"Control output sent to cmd_vel: {output}")
+
 
         # ----------------------------------------------------------------------------------------------------
         # -----------------------------------------Focus above------------------------------------------------
         # ----------------------------------------------------------------------------------------------------
         self.turn_output_into_cmd_vel_(output)
+
+    def run(self):
+        # 在此方法中执行控制指令
+        output = self.Lpc.lpc_calculate(x1=self.x1, x2=self.x2)
+        self.Lpc.calculate_distance(x1=self.x1, x2=self.x2)
+        self.turn_output_into_cmd_vel_(output)   
 
 def main():
     rclpy.init()
@@ -117,6 +130,10 @@ def main():
         node = Lft_Onni_Robots("Lft_Onni_Robots")
         while 1:
             pass
+        # while rclpy.ok():
+        #     node.run()  # 执行控制指令
+        #     time.sleep(0.001)  # 延时，避免过于频繁的执行
+        #     rclpy.spin_once(node)  # 处理ROS2事件
     except KeyboardInterrupt:
         pass
     finally:

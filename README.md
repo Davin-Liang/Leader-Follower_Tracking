@@ -3,7 +3,7 @@
 ```
 mkdir -p lft_ws/src
 git clone git@github.com:Davin-Liang/Leader-Follower_Tracking.git
-cd Follower_Tracking
+cd Leader-Follower_Tracking
 git fetch origin
 git branch -a
 git checkout dev_li
@@ -11,10 +11,11 @@ git switch dev_li
 cd ..
 cd ..
 colcon build --packages-select lft_simulation lft_control
+source install/setup.bash
 ```
 2. Start simulation environment.
 ```
-ros2 launch lft_simulation onni_lft_simulation.launch.py
+ros2 launch lft_simulation omni_lft_simulation.launch.py
 ```
 3. Control Leader Onni Robot by command line.
 ```

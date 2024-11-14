@@ -112,15 +112,15 @@ def generate_launch_description():
     def create_gazebo_launch_group():
         # 设置 robot1 和 robot2 的初始位置和方向
         robot1_config = {
-            'x': '0.0',
-            'y': '0.0',
+            'x': '10.0',
+            'y': '1.0',
             'z': '0.0',
             'yaw': '0.0',
         }
 
         robot2_config = {
-            'x': '2.0',  # 例如，设置 robot2 在 x 方向偏移 2.0 米
-            'y': '0.0',
+            'x': '1.0',  # 例如，设置 robot2 在 x 方向偏移 2.0 米
+            'y': '1.0',
             'z': '0.0',
             'yaw': '0.0',
         }

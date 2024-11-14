@@ -2,20 +2,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Lpc_Controller():
-    def __init__(self, m_p=4, radius=1, tol=0.1, m=10.2):
+    def __init__(self, m_p=4, radius=1, tol=0.1, m=2):
         self.m = m
         self.A = np.block([[np.zeros((2, 2)), np.eye(2)], [np.zeros((2, 2)), np.zeros((2, 2))]])
         self.B = np.block([[np.zeros((2, 2))], [np.eye(2) * (1 / self.m)]])
         self.m_p    = 4 # 安全点的个数
-        self.radius = 5 # 安全区的半径
+        self.radius = 1 # 安全区的半径
         self.tol    = 0.1
-        self.dl     = [] # 4 个安全的坐标
+        self.dl     = [] # 4个安全的坐标
 
     def controller_initial_(self, x1, x2):
-        center = x1[:2]
+        # center = x1[:2]
         self.dl = []
         for i in range(self.m_p):
-            d = -1 * self.radius * np.array([np.cos(2 * np.pi * i / self.m_p), np.sin(2 * np.pi * i / self.m_p)]) + center
+            # d = -1 * self.radius * np.array([np.cos(2 * np.pi * i / self.m_p), np.sin(2 * np.pi * i / self.m_p)]) + center
+            d = -1 * self.radius * np.array([np.cos(2 * np.pi * i / self.m_p), np.sin(2 * np.pi * i / self.m_p)])
             self.dl.append(np.concatenate([d, [0, 0]]))
         self.dl = np.array(self.dl).T
 
@@ -26,13 +27,13 @@ class Lpc_Controller():
         self.mv = min(self.dist_l)
         self.mi = self.dist_l.index(self.mv)
         self.d = self.dl[:, self.mi]
-
+        
         # 误差计算与控制律的设计
         self.e = x2 - x1 - self.d
 
         a = max(-self.m * (self.e[2]) / self.e[0], 1)
-        if e[1] != 0:
-            b = max(-m * (e[3]) / e[1], 1)
+        if self.e[1] != 0:
+            b = max(-self.m * (self.e[3]) / self.e[1], 1)
         else:
             b = 1
         # b = max(-self.m * (self.e[3]) / self.e[1], 1)
@@ -52,6 +53,18 @@ class Lpc_Controller():
 
         # 误差计算
         self.e = x2 - x1 - self.d
+
+        # print("x2：",x2)
+        # print("x1：",x1)
+        # print("d：",self.d)
+        # print("误差e：",self.e)
+        # print("误差范数np.linalg.norm(self.e)：",np.linalg.norm(self.e))
+
+        # # 停止条件
+        # if np.linalg.norm(self.e) < self.tol: #如果误差小于阈值
+        #     print('111111111')
+        #     return [0, 0]
+        
         # 控制律 u2
         u2 = np.dot(self.k_lin, self.e)
         # 更新 x2
@@ -65,12 +78,12 @@ class Lpc_Controller():
 
     def calculate_distance(self, x1, x2):
         # 计算 x2 和 x1 到安全点的距离
-        center = x1[:2]
-        self.dl = []
-        for i in range(self.m_p):
-            d = -1 * self.radius * np.array([np.cos(2 * np.pi * i / self.m_p), np.sin(2 * np.pi * i / self.m_p)]) + center
-            self.dl.append(np.concatenate([d, [0, 0]]))
-        self.dl = np.array(self.dl).T
+        # center = x1[:2]
+        # self.dl = []
+        # for i in range(self.m_p):
+        #     d = -1 * self.radius * np.array([np.cos(2 * np.pi * i / self.m_p), np.sin(2 * np.pi * i / self.m_p)]) + center
+        #     self.dl.append(np.concatenate([d, [0, 0]]))
+        # self.dl = np.array(self.dl).T
 
         self.dist_l = []
         for i in range(self.m_p):

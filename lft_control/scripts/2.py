@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from lpc2hpc import lpc2hpc
 from hnorm import hnorm
 from scipy.linalg import expm
-import csv,time
+import time
 
 class Lpc_Controller():
     def __init__(self, m_p=4, radius=1, tol=0.1, m=2):
@@ -16,25 +16,6 @@ class Lpc_Controller():
         self.dl     = [] # 4 个安全点的坐标
         self.safe_distance = 4
         self.max_distance = 10.0 
-
-        # 创建一个 CSV 文件用于记录数据
-        self.data_file = 'lpc_debug_data.csv'
-        with open(self.data_file, mode='w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(["timestamp", "x1", "x2", "e", "goal_x2"])
-
-    def save_data(self, x1, x2, e, goal_x2):
-        timestamp = time.time()  # 当前时间戳
-        
-        # 写入数据到 CSV 文件
-        with open(self.data_file, mode='a', newline='') as f:
-            writer = csv.writer(f)
-            # 写入 x1, x2, e, goal_x2 的值
-            writer.writerow([timestamp, 
-                             x1[0], x1[1], x1[2], x1[3],  # x1 的四个分量
-                             x2[0], x2[1], x2[2], x2[3],  # x2 的四个分量
-                             e[0], e[1],  # e 的 x 和 y 分量
-                             goal_x2[0], goal_x2[1], goal_x2[2], goal_x2[3]])  # goal_x2 的四个分量
 
     def controller_initial_(self, x1, x2):
         # center = x1[:2]
@@ -53,8 +34,8 @@ class Lpc_Controller():
         self.d = self.dl[:, self.mi]
 
         # 误差计算与控制律的设计
-        # self.e = x2 - x1 - self.d
-        self.e = x2 - x1 + np.array([2, 0, 0, 0])
+        self.e = x2 - x1 - self.d
+        # self.e = x2 - x1
         print("in_e:",self.e)
         self.distance = np.linalg.norm(self.e)
     
@@ -78,39 +59,39 @@ class Lpc_Controller():
         # nu = 0
         self.Gd = np.eye(4) + self.nu * G0
         print("in_nu,Gd:",self.nu, self.Gd)
-        # print("K0, G0, P, nu_min, nu_max, Gd, nu:", K0, G0, P, nu_min, nu_max, Gd, nu)
+        print("K0, G0, self.P, nu_min, nu_max, self.Gd, self.nu:", K0, G0, self.P, nu_min, nu_max, self.Gd, self.nu)
         # -------------------------齐次控制above-------------------------------
    
    
     def lpc_calculate(self, x1, x2): # TODO:
         h = 0.01
-
+        
         # 控制律 u1
         # u1 = -np.dot(np.hstack([np.eye(2), np.eye(2)]), x1) + np.array([np.sin(t), np.cos(t)])
-        # u1 = np.array([1.0, 0.0])
-        # 更新 x1
-        # x1 = x1 + h * (np.dot(self.A, x1) + np.dot(self.B, u1))
+        u1 = np.array([1.0, 0.0])
+        # # 更新 x1
+        x1 = x1 + h * (np.dot(self.A, x1) + np.dot(self.B, u1))
         # print("x1:",x1)
 
         # 误差计算
         self.e = x2 - x1 - self.d
-        # self.e = x2 - x1 + np.array([2, 0, 0, 0])
+        # self.e = x2 - x1
         print("e:",self.e)
 
         # -------------------------齐次控制below--------------------------------
         # 控制律 u2
-
         nx = hnorm(self.e, self.Gd, self.P)
-        # print("nx:",nx)
-
+        print("nx:",nx)
         # 定义变量
         min_val = max(min(1, nx), 0.1)  # 计算 min(1, nx) 和 0.1 的最大值
         exponent = 1 + self.nu  # 计算指数部分
         k_term = min_val ** exponent  # 计算 k_term 的幂
 
-        k_lin_k_term = self.k_lin * k_term # 将 k_lin 和 k_term 分别处理为标量
- 
-        Gd_term = self.Gd * (1 - np.log(min_val))  # # 计算Gd的乘积
+        # 将 k_lin 和 k_term 分别处理为标量
+        k_lin_k_term = self.k_lin * k_term
+
+        # 计算矩阵指数
+        Gd_term = self.Gd * (1 - np.log(min_val))  # 计算 Gd 的乘积
         exp_Gd = expm(Gd_term)  # 计算矩阵的指数
 
         # # 根据距离生成减速因子
@@ -134,9 +115,6 @@ class Lpc_Controller():
 
         # 更新 x2
         goal_x2 = x2 + h * (np.dot(self.A, x2) + np.dot(self.B, u2))
-
-        self.save_data(x1, x2, self.e, goal_x2)
-
         print("goal_x2:",goal_x2)
 
         result = []
@@ -152,3 +130,30 @@ class Lpc_Controller():
 
         self.mv = min(self.dist_l)
         self.mi = self.dist_l.index(self.mv)
+
+
+def main():
+    controller = Lpc_Controller()
+
+    # Initial positions (example values)
+    x1 = np.array([10.0, 1.0, 0.0, 0.0])  # Leader position (x1)
+    x2 = np.array([1.0, 1.0, 0.0, 0.0])  # Follower position (x2)
+
+    start=time.time()
+
+    # Initialize controller
+    controller.controller_initial_(x1, x2)
+    
+
+    # Perform one step of calculation
+    goal_x2 = controller.lpc_calculate(x1, x2)
+    print("Updated goal_x2:", goal_x2)
+
+    # Calculate distance
+    controller.calculate_distance(x1, x2)
+    end=time.time()
+    print('程序运行时间为: %s Seconds'%(end-start))
+
+
+if __name__ == "__main__":
+    main()
